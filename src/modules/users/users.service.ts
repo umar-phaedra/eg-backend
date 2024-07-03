@@ -10,13 +10,13 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<UserDocument>
 ) {}
 
-  async create(name: string, username: string, password: string): Promise<User> {
+  async create(name: string, email: string, password: string): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new this.userModel({ name, username, password: hashedPassword });
+    const newUser = new this.userModel({ name, email, password: hashedPassword });
     return newUser.save();
   }
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.userModel.findOne({ username }).exec();
+  async findOne(email: string): Promise<User | undefined> {
+    return this.userModel.findOne({ email }).lean().exec();
   }
 }
