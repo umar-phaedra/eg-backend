@@ -1,8 +1,19 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule} from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { MONGODB } from 'src/common/constants';
 
 @Module({
-  // imports: [MongooseModule.forRoot('mongodb://localhost/easygenerator')], //TODO: Uncomment this for local db
-  imports: [MongooseModule.forRoot('mongodb+srv://umarrhere:Qyc5zzB6meFEbjK5@testcluster.qhvzf2e.mongodb.net/easygenerator')],
+  imports: [
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('USE_DB') === MONGODB.ATLAS
+          ? configService.get<string>('MONGODB_URL_ATLAS')
+          : configService.get<string>('MONGODB_URL_LOCAL'),
+      }),
+      inject: [ConfigService],
+    }),
+  ],
 })
 export class DatabaseModule {}
